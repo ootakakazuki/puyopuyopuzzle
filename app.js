@@ -12,6 +12,14 @@ let MapWidth = 5
 const boxWidth = 50
 const boxHeight = 50
 
+/* 
+ * todo
+ * 落下中は最後まで落下しきるまで同色で隣接しても消去しない
+ * 3つ以上の連鎖で消去する
+ * 縦連鎖でも消去する
+ * 得点つける
+ */
+
 class Block{
     constructor(x, y, width, height, color, strokeColor, isExist) {
         this.x = x;
@@ -71,6 +79,9 @@ function spawnBlock(i){
 
 
 function SpawnUnderRowBlock(){
+
+    
+
     for (let i = 0; i < blocks.length;i++){
         if (blocks.length >= 51 && blocks[i].isExist){
             return
