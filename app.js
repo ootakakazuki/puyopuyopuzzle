@@ -108,8 +108,6 @@ function handleClick(event){
     }
 }
 
-
-
 function swapBlocks(clickedBlock) {
     let index = blocks.indexOf(clickedBlock);
     let rightBlock = blocks[index + 1];
@@ -131,11 +129,9 @@ function swapBlocks(clickedBlock) {
     }
 }
 
-ctx.fillStyle = "gold";
-function gameloop(){
-    // 画面の消去
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
+function deleteBlock()
+{
     for (var i=0; i<blocks.length; i++) {
         
         //if (i % 5 == 3 || i % 5 == 4) continue;
@@ -153,16 +149,25 @@ function gameloop(){
             //console.log(blocks[i].color);
             blocks[i+1].logicDelete();
             //blocks[i+2].logicDelete();
-            deleteField[i] = 1;
-            deleteField[i+1] = 1;
+            deleteField[i%5] = 1;
+            deleteField[(i+1)%5] = 1;
         }
     }
 
-    /*
-    for (i = blocks.length - 1; i > 0; i--) {
+}
 
+ctx.fillStyle = "gold";
+function gameloop(){
+    // 画面の消去
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    deleteBlock()
+
+    
+    for (i = blocks.length - 6; i >= 0; i--) {
+        if (deleteField[i % 5] == 1){
+            blocks[i].y -= this.height;
+        }
     }
-    */
     /*
     boxX += boxVX;
     boxY += boxVY;
@@ -194,7 +199,7 @@ function gameloop(){
 }
 
 SpawnUnderRowBlock()
-setInterval(SpawnUnderRowBlock, 10000);
+setInterval(SpawnUnderRowBlock, 2000);
 
 
 requestAnimationFrame(gameloop);
