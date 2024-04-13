@@ -43,6 +43,7 @@ class Block{
         //ctx.strokeStyle = "rgba(255,255,255,0)";
         
         ctx.strokeRect(this.x, this.y, this.width, this.height)
+        console.log("【delete】")
     }
 }
 
@@ -64,6 +65,7 @@ function spawnBlock(i){
     //console.log(idx);
     const block = new Block(x, y, boxWidth, boxHeight, color[idx], "black", true)
     blocks.push(block);
+    console.log(block.color);
     //blocks = [block].concat(blocks);
 }
 
@@ -80,6 +82,40 @@ function SpawnUnderRowBlock(){
     // 5個ブロックを最下層に作る
     for (let i = 0; i < 5; i++) {
         spawnBlock(i);
+    }
+}
+
+function checkFloatBlock(){
+    console.log("checkFloatBlock start")
+    for (let i = blocks.length - 1; i > 4; i--) {
+        if (blocks[i].color == "white")
+        {
+            blocks[i].isExist = false;
+        }
+        /*
+        try{
+            console.log("checkFloatBlock")
+            blocks[i+5].isExist = true;
+            blocks[i+5].color = blocks[i].color;
+            blocks[i+5].strokeColor = "black";
+            blocks[i].isExist = false;
+            blocks[i].color = "white"
+            blocks[i].strokeColor = "white"    
+        }catch(e){
+            console.log("checkFloatBlock error", e)
+        }
+        */
+       console.log("blocks[i]: ", blocks[i])
+        if (blocks[i] && blocks[i].isExist == false)
+        {
+            console.log("checkFloatBlock")
+            blocks[i].isExist = true;
+            blocks[i].color = blocks[i - 5].color;
+            blocks[i].strokeColor = "black";
+            blocks[i-5].isExist = false;
+            blocks[i-5].color = "white"
+            blocks[i-5].strokeColor = "white"
+        }
     }
 }
 
@@ -105,28 +141,42 @@ function handleClick(event){
 
     if (clickedBlock){
         swapBlocks(clickedBlock);
+        
     }
 }
 
+function swapBlockTwoThings(index, attribute)
+{
+    let temp = blocks[index].attribute;
+    blocks[index].attribute = blocks[index+1].attribute;
+    blocks[index+1].attribute = temp;
+}
+
+
 function swapBlocks(clickedBlock) {
     let index = blocks.indexOf(clickedBlock);
-    let rightBlock = blocks[index + 1];
+    //let rightBlock = blocks[index + 1];
     console.log("index:" , index)
     console.log("clickedBlock:" , clickedBlock)
-    
+
     // 右隣にブロックがあれば位置を交換
     if ((index) % 5 < (index + 1) % 5) {
-        let tmp;
+        //swapBlockTwoThings(index, clickedBlock.color)
+        
         temp = blocks[index].color;
         blocks[index].color = blocks[index+1].color;
         blocks[index+1].color = temp;
+        //swapBlockTwoThings(index, clickedBlock.isExist)
 
+        //swapTwoThings(blocks[index].isExist, blocks[index+1].isExist)
+        
         temp = blocks[index].isExist;
         blocks[index].isExist = blocks[index+1].isExist;
         blocks[index+1].isExist = temp;
-
+        
         blocks.forEach(block => console.log(block.color));
     }
+    // 
 }
 
 
@@ -143,16 +193,21 @@ function deleteBlock()
         console.log("blocks[i+2].color:", blocks[i+2].color);
         */
         //if (blocks[i].color == blocks[i+1].color && blocks[i+1].color == blocks[i+2].color){
-        if (blocks[i].color == blocks[i+1].color){
+        if (blocks[i].color !="white" && blocks[i].color == blocks[i+1].color){
             //console.log("i:", i);
             blocks[i].logicDelete();
             //console.log(blocks[i].color);
             blocks[i+1].logicDelete();
             //blocks[i+2].logicDelete();
-            deleteField[i%5] = 1;
-            deleteField[(i+1)%5] = 1;
+            if (blocks.length >= 6){
+                deleteField[i%5] = 1;
+                deleteField[(i%5)+1] = 1;  
+                console.log("d", deleteField);  
+            }
         }
     }
+    
+    //deleteField = deleteField.reverse();
 
 }
 
@@ -161,29 +216,32 @@ function gameloop(){
     // 画面の消去
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     deleteBlock()
+    /* 浮いてるブロックあれば落下させる検査関数 */
+    checkFloatBlock();
+    for (let i = 0; i < 55; i++) {
+        
+    }
 
-    
-    for (i = blocks.length - 6; i >= 0; i--) {
+    /*
+    for (i = blocks.length - 1; i >= 0; i--) {
+        //console.log("blocks.length:", blocks.length);
+        if (i >= (blocks.length - 5)){
+            continue;
+        }
+        //console.log("i:", i);
         if (deleteField[i % 5] == 1){
-            blocks[i].y -= this.height;
+            try{
+                blocks[i+5].color = blocks[i].color;
+                blocks[i+5].strokeColor = "black";
+                blocks[i+5].isExist = true;
+                blocks[i].logicDelete();    
+            }catch(e){
+                console.log("hoge");
+                console.error(e);
+            }
         }
     }
-    /*
-    boxX += boxVX;
-    boxY += boxVY;
-
-    // 壁の反射処理
-    if (boxX < 0 || boxX + boxWidth > canvas.width){
-        boxVX = -boxVX; 
-        ctx.fillStyle = "red";
-    }
-    
-    if (boxY < 0 || boxY + boxHeight > canvas.height){
-        boxVY = -boxVY;  
-        ctx.fillStyle = "blue";
-    }
     */
-
     ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
     blocks.forEach(block => {
         block.draw()
@@ -192,6 +250,7 @@ function gameloop(){
             block.draw()
         }*/
     });
+    //console.log("giger");
     deleteField = [0, 0, 0, 0, 0];
     //blocks.forEach(block => console.log(block.color));    
     requestAnimationFrame(gameloop);
