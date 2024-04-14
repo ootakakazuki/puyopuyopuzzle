@@ -50,11 +50,10 @@ class Block{
         ctx.fillRect(this.x, this.y, this.width, this.height);
         this.strokeColor = "white"
         ctx.strokeRect(this.x, this.y, this.width, this.height)
-        console.log("【delete】")
+        //console.log("【delete】")
     }
 }
 
-let deleteField = [0, 0, 0, 0, 0];
 let color = ["red", "blue", "green", "yellow", "pink"]
 let blocks = [];
 function spawnBlock(i){
@@ -86,17 +85,21 @@ function SpawnUnderRowBlock(){
     // ブロック全体を上にあげる
     blocks.forEach(block => block.y -= boxHeight);
     // 5個ブロックを最下層に作る
+
+    console.log("spawn開始")
     for (let i = 0; i < 5; i++) {
         spawnBlock(i);
     }
+    console.log("spawn終了")
 }
 
 function checkFloatBlock(){
-    console.log("checkFloatBlock start")
+    //console.log("checkFloatBlock start")
     for (let i = 0; i < blocks.length; i++) {
         if (blocks[i].color == "white")
         {
-            blocks[i].isExist = false;
+            //blocks[i].isExist = false;
+            blocks[i].logicDelete();
         }
     }
 
@@ -118,7 +121,7 @@ function checkFloatBlock(){
         //if (blocks[i] && blocks[i].isExist == false)
         if (blocks[i] && blocks[i].isExist == false && blocks[i-5] && blocks[i-5].isExist == true)
         {
-            console.log("checkFloatBlock")
+            //console.log("_checkFloatBlock")
             blocks[i].isExist = true;
             blocks[i].color = blocks[i - 5].color;
             blocks[i].strokeColor = "black";
@@ -135,11 +138,11 @@ function handleClick(event){
     const rect = canvas.getBoundingClientRect();
     let x = event.clientX - rect.left
     let y = event.clientY - rect.top
+    /*
     console.log("x:", x);
     console.log("event.clientX:", event.clientX);
-
+    */
     let clickedBlock = blocks.find(block => {
-        console.log(block)
         return (
             //block.isExist == true &&
             x >= block.x &&
@@ -151,7 +154,6 @@ function handleClick(event){
 
     if (clickedBlock){
         swapBlocks(clickedBlock);
-        
     }
     deleteflag = true;
 }
@@ -167,9 +169,10 @@ function swapBlockTwoThings(index, attribute)
 function swapBlocks(clickedBlock) {
     let index = blocks.indexOf(clickedBlock);
     //let rightBlock = blocks[index + 1];
+    /*
     console.log("index:" , index)
     console.log("clickedBlock:" , clickedBlock)
-
+    */
     // 右隣にブロックがあれば位置を交換
     if ((index) % 5 < (index + 1) % 5) {
         //swapBlockTwoThings(index, clickedBlock.color)
@@ -184,7 +187,6 @@ function swapBlocks(clickedBlock) {
         temp = blocks[index].isExist;
         blocks[index].isExist = blocks[index+1].isExist;
         blocks[index+1].isExist = temp;
-        
         blocks.forEach(block => console.log(block.color));
     }
     // 
@@ -202,53 +204,71 @@ function deleteBlock()
             blocks[i+2].logicDelete();
 
             score += 10;
+            /*
             if (blocks.length >= 6){
                 deleteField[i%5] = 1;
-                deleteField[(i%5)+1] = 1;
-                
-                console.log("dddd", deleteField);  
+                deleteField[(i%5)+1] = 1;                
             }
+            */
         }
     }
-    /*
+    
     for (let i=0; i<5; i++){
+        // 列ごとの処理
         let firstDelPosi = i;
-        let lastDelPosi = i;
+        let lastDelPosi = i+5;
         let delflag = false;
         for (let j=1; j< blocks.length/5; j++) {
-            if (blocks[firstDelPosi].color == "white") continue;
+            // 行ごとの処理
+            /*
+            console.log("firstDelPosi", firstDelPosi);
+            console.log("lastDelPosi", lastDelPosi);
+            */
+            // ホワイトなら無視
+            if (blocks[firstDelPosi].color == "white"){
+                firstDelPosi += 5;
+                lastDelPosi += 5;
+                continue;
+            }
+            // 色が続く限り続ける　途切れたらそこを起点に再開する
             if (blocks[firstDelPosi].color == blocks[lastDelPosi].color){
                 lastDelPosi += 5;
-                if ((lastDelPosi - firstDelPosi)/5 >= 2) delflag = true;
+                // 3つ以上続いていたら削除対象
+                if ((lastDelPosi - firstDelPosi)/5 >= 3) delflag = true;
             }else{
-                firstDelPosi = i + j * 5;
+                firstDelPosi = lastDelPosi;
+                lastDelPosi += 5
             }
-            if (delflag || lastDelPosi == blocks.length-5){
+            //if (delflag || lastDelPosi >= blocks.length-5){
+            if (delflag){
+                console.log("deleteBlock開始")
                 for (; firstDelPosi<lastDelPosi ; firstDelPosi+=5) {
+                    
+                    console.log(blocks[firstDelPosi].color)
+                    console.log("削除")
                     blocks[firstDelPosi].logicDelete();
+                    score += 10;
                 }        
                 delflag = false;
-            }
+                console.log("deleteBlock終了")
 
+            }
         }
-    }
-    */
+    }   
 }
 
 ctx.fillStyle = "gold";
 function gameloop(){
     // 画面の消去
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // スコア表示
     score_display.innerText = score;
 
+    // ブロックを消す関数
     deleteBlock()
     /* 浮いてるブロックあれば落下させる検査関数 */
     checkFloatBlock();
-    /*
-    for (let i = 0; i < 55; i++) {
-        
-    }
-    */
+   // ブロックをクリックしたらスワップする
     addEventListener("click", handleClick)
 
     /*
@@ -271,7 +291,7 @@ function gameloop(){
         }
     }
     */
-    ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+    //ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
     blocks.forEach(block => {
         block.draw()
         /*
@@ -280,7 +300,6 @@ function gameloop(){
         }*/
     });
     //console.log("giger");
-    deleteField = [0, 0, 0, 0, 0];
     //blocks.forEach(block => console.log(block.color));    
     requestAnimationFrame(gameloop);
 
@@ -294,38 +313,3 @@ requestAnimationFrame(gameloop);
 
 alert('1');
 
-
-/*
-fillRect
-
-x
-矩形の開始位置の X 座標です。
-
-y
-矩形の開始位置の Y 座標です。
-
-width
-矩形の幅です。正の数であれば右方向、負の数であれば左方向です。
-
-height
-矩形の高さです。正の数であれば下方向、負の数であれば上方向です。
-*/ 
-
-/*
-ctx.lineWidth = 10;
-
-// 壁
-ctx.strokeRect(75, 140, 150, 110);
-
-// ドア
-ctx.fillRect(130, 190, 40, 60);
-
-// 屋根
-ctx.beginPath();
-ctx.moveTo(50, 140);
-ctx.lineTo(150, 60);
-ctx.lineTo(250, 140);
-ctx.closePath();
-ctx.stroke();
-
-*/
