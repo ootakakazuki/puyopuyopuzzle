@@ -54,6 +54,9 @@ class Block{
     }
 }
 
+
+
+
 let color = ["red", "blue", "green", "yellow", "pink"]
 let blocks = [];
 function spawnBlock(i){
@@ -95,7 +98,7 @@ function SpawnUnderRowBlock(){
 
 function checkFloatBlock(){
     //console.log("checkFloatBlock start")
-    for (let i = 0; i < blocks.length; i++) {
+    for (let i = 0; i < blocks.length-5; i++) {
         if (blocks[i].color == "white")
         {
             //blocks[i].isExist = false;
@@ -104,20 +107,8 @@ function checkFloatBlock(){
     }
 
     for (let i = blocks.length - 1; i > 4; i--) {
-        /*
-        try{
-            console.log("checkFloatBlock")
-            blocks[i+5].isExist = true;
-            blocks[i+5].color = blocks[i].color;
-            blocks[i+5].strokeColor = "black";
-            blocks[i].isExist = false;
-            blocks[i].color = "white"
-            blocks[i].strokeColor = "white"    
-        }catch(e){
-            console.log("checkFloatBlock error", e)
-        }
-        */
-       //console.log("blocks[",i,"]: ", blocks[i])
+    //for (let i = blocks.length - 1; i > 9; i--) {
+        //console.log("blocks[",i,"]: ", blocks[i])
         //if (blocks[i] && blocks[i].isExist == false)
         if (blocks[i] && blocks[i].isExist == false && blocks[i-5] && blocks[i-5].isExist == true)
         {
@@ -158,6 +149,8 @@ function handleClick(event){
     deleteflag = true;
 }
 
+
+
 function swapBlockTwoThings(index, attribute)
 {
     let temp = blocks[index].attribute;
@@ -195,7 +188,7 @@ function swapBlocks(clickedBlock) {
 
 function deleteBlock()
 {
-    for (var i=0; i<blocks.length; i++) 
+    for (var i=0; i<blocks.length-5; i++) 
     {
         if (i % 5 == 3 || i % 5 == 4) continue;
         if (blocks[i].color !="white" && blocks[i].color == blocks[i+1].color && blocks[i+1].color == blocks[i+2].color){
@@ -218,7 +211,7 @@ function deleteBlock()
         let firstDelPosi = i;
         let lastDelPosi = i+5;
         let delflag = false;
-        for (let j=1; j< blocks.length/5; j++) {
+        for (let j=1; j< (blocks.length/5)-1; j++) {
             // 行ごとの処理
             /*
             console.log("firstDelPosi", firstDelPosi);
@@ -263,7 +256,7 @@ function gameloop(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // スコア表示
     score_display.innerText = score;
-
+    
     // ブロックを消す関数
     deleteBlock()
     /* 浮いてるブロックあれば落下させる検査関数 */
@@ -299,6 +292,13 @@ function gameloop(){
             block.draw()
         }*/
     });
+
+    // 最下層を薄っすら透明にする
+    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.fillRect(0, 500, 250, 50);
+        
+    //ctx.strokeStyle = "black";
+    //ctx.strokeRect(0, 500, 300, 4);
     //console.log("giger");
     //blocks.forEach(block => console.log(block.color));    
     requestAnimationFrame(gameloop);
