@@ -46,15 +46,9 @@ class Block{
     }
     logicDelete(){
         this.isExist = false;
-        //ctx.fillStyle = this.black;
-        //this.color = "rgba(255,255,255,0)";
         this.color = "white";
         ctx.fillRect(this.x, this.y, this.width, this.height);
-        //ctx.fillStyle = "rgba(255,255,255,0)";
-        //this.strokeColor = "rgba(255,255,255,0)"
         this.strokeColor = "white"
-        //ctx.strokeStyle = "rgba(255,255,255,0)";
-        
         ctx.strokeRect(this.x, this.y, this.width, this.height)
         console.log("【delete】")
     }
@@ -84,12 +78,11 @@ function spawnBlock(i){
 
 
 function SpawnUnderRowBlock(){
-    for (let i = 0; i < blocks.length;i++){
-        if (blocks.length >= 51 && blocks[i].isExist){
+    for (let i = 0; i < 5;i++){
+        if (blocks.length >= 51 && blocks[blocks.length-55+i].isExist){
             return
         }
     }
-
     // ブロック全体を上にあげる
     blocks.forEach(block => block.y -= boxHeight);
     // 5個ブロックを最下層に作る
@@ -202,10 +195,12 @@ function deleteBlock()
 {
     for (var i=0; i<blocks.length; i++) 
     {
-        if (i % 5 == 4) continue;
-        if (blocks[i].color !="white" && blocks[i].color == blocks[i+1].color){
+        if (i % 5 == 3 || i % 5 == 4) continue;
+        if (blocks[i].color !="white" && blocks[i].color == blocks[i+1].color && blocks[i+1].color == blocks[i+2].color){
             blocks[i].logicDelete();
             blocks[i+1].logicDelete();
+            blocks[i+2].logicDelete();
+
             score += 10;
             if (blocks.length >= 6){
                 deleteField[i%5] = 1;
