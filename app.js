@@ -7,10 +7,15 @@ let boxX = 50;
 let boxY = 50;
 let boxVX = 2;
 let boxVY = 2;
-let MapWidth = 5
+let MapWidth = 5;
 
 const boxWidth = 50
 const boxHeight = 50
+
+let deleteflag = true
+let score = 0;
+
+let score_display = document.getElementById('score');
 
 /* 
  * todo
@@ -79,9 +84,6 @@ function spawnBlock(i){
 
 
 function SpawnUnderRowBlock(){
-
-    
-
     for (let i = 0; i < blocks.length;i++){
         if (blocks.length >= 51 && blocks[i].isExist){
             return
@@ -98,11 +100,14 @@ function SpawnUnderRowBlock(){
 
 function checkFloatBlock(){
     console.log("checkFloatBlock start")
-    for (let i = blocks.length - 1; i > 4; i--) {
+    for (let i = 0; i < blocks.length; i++) {
         if (blocks[i].color == "white")
         {
             blocks[i].isExist = false;
         }
+    }
+
+    for (let i = blocks.length - 1; i > 4; i--) {
         /*
         try{
             console.log("checkFloatBlock")
@@ -116,8 +121,9 @@ function checkFloatBlock(){
             console.log("checkFloatBlock error", e)
         }
         */
-       console.log("blocks[i]: ", blocks[i])
-        if (blocks[i] && blocks[i].isExist == false)
+       //console.log("blocks[",i,"]: ", blocks[i])
+        //if (blocks[i] && blocks[i].isExist == false)
+        if (blocks[i] && blocks[i].isExist == false && blocks[i-5] && blocks[i-5].isExist == true)
         {
             console.log("checkFloatBlock")
             blocks[i].isExist = true;
@@ -130,9 +136,9 @@ function checkFloatBlock(){
     }
 }
 
-addEventListener("click", handleClick)
 
 function handleClick(event){
+    deleteflag = false;
     const rect = canvas.getBoundingClientRect();
     let x = event.clientX - rect.left
     let y = event.clientY - rect.top
@@ -154,6 +160,7 @@ function handleClick(event){
         swapBlocks(clickedBlock);
         
     }
+    deleteflag = true;
 }
 
 function swapBlockTwoThings(index, attribute)
@@ -193,45 +200,61 @@ function swapBlocks(clickedBlock) {
 
 function deleteBlock()
 {
-    for (var i=0; i<blocks.length; i++) {
-        
-        //if (i % 5 == 3 || i % 5 == 4) continue;
+    for (var i=0; i<blocks.length; i++) 
+    {
         if (i % 5 == 4) continue;
-        //console.log("i:", i);
-        /*
-        console.log("blocks[i].color:", blocks[i].color);
-        console.log("blocks[i+1].color:", blocks[i+1].color);
-        console.log("blocks[i+2].color:", blocks[i+2].color);
-        */
-        //if (blocks[i].color == blocks[i+1].color && blocks[i+1].color == blocks[i+2].color){
         if (blocks[i].color !="white" && blocks[i].color == blocks[i+1].color){
-            //console.log("i:", i);
             blocks[i].logicDelete();
-            //console.log(blocks[i].color);
             blocks[i+1].logicDelete();
-            //blocks[i+2].logicDelete();
+            score += 10;
             if (blocks.length >= 6){
                 deleteField[i%5] = 1;
-                deleteField[(i%5)+1] = 1;  
-                console.log("d", deleteField);  
+                deleteField[(i%5)+1] = 1;
+                
+                console.log("dddd", deleteField);  
             }
         }
     }
-    
-    //deleteField = deleteField.reverse();
+    /*
+    for (let i=0; i<5; i++){
+        let firstDelPosi = i;
+        let lastDelPosi = i;
+        let delflag = false;
+        for (let j=1; j< blocks.length/5; j++) {
+            if (blocks[firstDelPosi].color == "white") continue;
+            if (blocks[firstDelPosi].color == blocks[lastDelPosi].color){
+                lastDelPosi += 5;
+                if ((lastDelPosi - firstDelPosi)/5 >= 2) delflag = true;
+            }else{
+                firstDelPosi = i + j * 5;
+            }
+            if (delflag || lastDelPosi == blocks.length-5){
+                for (; firstDelPosi<lastDelPosi ; firstDelPosi+=5) {
+                    blocks[firstDelPosi].logicDelete();
+                }        
+                delflag = false;
+            }
 
+        }
+    }
+    */
 }
 
 ctx.fillStyle = "gold";
 function gameloop(){
     // 画面の消去
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    score_display.innerText = score;
+
     deleteBlock()
     /* 浮いてるブロックあれば落下させる検査関数 */
     checkFloatBlock();
+    /*
     for (let i = 0; i < 55; i++) {
         
     }
+    */
+    addEventListener("click", handleClick)
 
     /*
     for (i = blocks.length - 1; i >= 0; i--) {
